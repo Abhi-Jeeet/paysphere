@@ -80,7 +80,9 @@ router.get("/me", verifyToken, async(req, res)=>{
 });
 
 router.get("/admin-only", verifyToken, requireRole("admin"), async(req,res)=>{
-  res.json({message: "Welcome admin! You can access admin routes."});
+  res.json({message:"Welcome admin!",
+    id: req.user.id,
+    role: req.user.role});
 })
 
 
