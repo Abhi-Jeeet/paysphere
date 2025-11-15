@@ -61,6 +61,14 @@ function verifyToken(req, res, next){
   }
 }
 
+function requireRole(role){
+  return(req, res, next)=>{
+    if(!req.user) return res.status(401).json({error: "No user in request"});
+    if(req.user.role !==role) return res.status(403).json({error: "Forbidden: insufficient role"});
+    next();
+  }
+}
+
 //get current user
 router.get("/me", verifyToken, async(req, res)=>{
   try {
@@ -70,6 +78,10 @@ router.get("/me", verifyToken, async(req, res)=>{
     res.status(500).json({error: "Server error"});
   }
 });
+
+router.get("/admin-only", verifyToken, requireRole("admin"), async(req,res)=>{
+  res.json({message: "Welcome admin! You can access admin routes."});
+})
 
 
 module.exports = router;

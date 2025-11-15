@@ -14,8 +14,14 @@ const Login = () => {
     try {
       const { data } = await loginUser(form);
       localStorage.setItem("token", data.token);
-      alert("Login successful!");
-      navigate("/dashboard");
+      const payload = JSON.parse(atob(data.token.split(".")[1]));
+
+      if(payload.role ==="admin"){
+        navigate("/admin/dashboard");        
+      }
+      else{
+        navigate("/user/dashboard");
+      }
     } catch (err) {
       alert(err.response?.data?.error || "Invalid credentials");
     } finally {
