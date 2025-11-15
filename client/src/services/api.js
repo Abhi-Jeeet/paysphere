@@ -1,6 +1,6 @@
 import axios from "axios";
 const API = axios.create({
-    baseURL: "http://localhost:5001/api", //auth-service backend
+    baseURL: "http://localhost:8000", //auth-service backend
 });
 
 //Automatically attach jwt (if present)
