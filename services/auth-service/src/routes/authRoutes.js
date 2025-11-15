@@ -46,6 +46,32 @@ router.post("/login", async (req, res) => {
 });
 
 
+//verify token middleware
+function verifyToken(req, res, next){
+  const authHeader = req.headers.authorization;
+  if(!authHeader) return res.status(401).json({error: "No token provided"});
+
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    return res.status(403).json({error: "Invalid token"});
+  }
+}
+
+//get current user
+router.get("/me", verifyToken, async(req, res)=>{
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    res.json({user});
+  } catch (error) {
+    res.status(500).json({error: "Server error"});
+  }
+});
+
+
 module.exports = router;
 
 
