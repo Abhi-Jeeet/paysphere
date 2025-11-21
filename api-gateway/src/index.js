@@ -61,6 +61,33 @@ app.use("/auth", async(req,res)=>{
     }
 });
 
+//Product Service 
+const PRODUCT_SERVICE = process.env.PRODUCT_SERVICE_URL;
+app.use("/products", async(req, res)=>{
+    try {
+        const url = PRODUCT_SERVICE + req.url;
+        const headers = {...req.headers};
+        if(req.user){
+            headers["x-user-id"] = req.user.id;
+            headers["x-user-role"] = req.user.role;
+        }
+        const response = await axios({
+            method : req.method,
+            url : url,
+            data: req.body,
+            headers,
+        })
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        console.log("PRODUCTFORWARD ERROR:", error.message);
+        res.status(error.response?.status || 500)
+            .json(error.response?.data || {error: "Gateway Error"});
+        
+    }
+})
+
+
+
 
 app.get("/", (req, res)=>{
     res.json({message:"API Gateway running......."})
