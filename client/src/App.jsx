@@ -6,6 +6,11 @@ import UserRoute from "./components/UserRoute";
 import AdminRoute from "./components/AdminRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import Unauthorized from "./pages/Unauthorized";
+import ProductList from "./pages/products/ProductList";
+import ProductDetails from "./pages/products/ProductDetails";
+import AdminProducts from "./pages/admin/AminProducts";
+import CreateProduct from "./pages/admin/CreateProduct";
+import EditProduct from "./pages/admin/AdminEditProduct";
 
 function App() {
   return (
@@ -14,6 +19,9 @@ function App() {
         {/* public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/" element={<ProductList/>}/>
+        <Route path="/product/:id" element={<ProductDetails/>}/>
+
 
           {/* user routes */}
         <Route path="/user/dashboard" element={
@@ -27,6 +35,9 @@ function App() {
         <Route path="/admin/dashboard" element={
           <AdminRoute>
             <AdminDashboard/>
+            <Route path="/admin/products" element={<AdminProducts />} />
+            <Route path="/admin/products/create" element={<CreateProduct />} />
+            <Route path="/admin/products/edit/:id" element={<EditProduct />} />
           </AdminRoute>
             
           
