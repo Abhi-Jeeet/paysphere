@@ -1,30 +1,28 @@
-const {kafka} = require("kafkajs");
-let kafkaProducer = null;
+const { Kafka } = require("kafkajs");
 
-function createProducer(brokers, clientId){
-    const kafka = new kafka({clientId, brokers: Array.isArray(brokers) ? brokers:[brokers]});
-    const producer = kafka.producer();
+let producer;
+
+async function initKafka() {
+    if (producer) return producer;
+
+    const kafka = new Kafka({
+        clientId: "product-service",
+        brokers: [process.env.KAFKA_BROKER]  
+    });
+
+    producer = kafka.producer();
+    await producer.connect();
+    console.log("Kafka Producer connected");
     return producer;
 }
 
-async function initProducer(config){
-    if(kafkaProducer) return kafkaProducer;
-    const {KAFKA_BROKER, KAFKA_CLIENT_ID} = config;
-    const producer = createProducer(KAFKA_BROKER, KAFKA_CLIENT_ID);
-    await producer.connect();
-    kafkaProducer = producer;
-    return kafkaProducer;
-}
+async function publish(topic, message) {
+    if (!producer) await initKafka();
 
-async function publish(topic, messageObj){
-    if(!kafkaProducer) throw new Error ("Producer not initialized");
-    await kafkaProducer.send({
+    await producer.send({
         topic,
-        message:[
-            {value: JSON.stringify(messageObj)}
-        ]
+        messages: [{ value: JSON.stringify(message) }]
     });
 }
 
-
-module.exports = {initProducer, publish};
+module.exports = { initKafka, publish };

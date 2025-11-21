@@ -1,53 +1,31 @@
 const express = require("express");
+const cors = require("cors");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
-const cors = require("cors");
-const { initProducer } = require("./kafka/producer");
-const productController = require("./controllers/productController");
+const productRoutes = require("./routes/productRoutes");
+const { initKafka } = require("./kafka/producer");
 
 dotenv.config();
-
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-//routes
-app.get("/api/products", productController.listProducts);
-app.get("/api/products/:id", productController.getProduct);
-app.post("/api/products", productController.createProduct);
-app.put("/api/products/:id", productController.updateProduct);
-app.delete("/api/products/:id", productController.deleteProduct);
-
+// Routes
+app.use("/api/products", productRoutes);
 
 const PORT = process.env.PORT || 5002;
-const MONGO_URI = process.env.MONGO_URI;
-const KAFKA_BROKER = process.env.KAFKA_BROKER;
-const KAFKA_CLIENT_ID = process.env.KAFKA_CLIENT_ID || "product-service";
 
-
-mongoose.connect(MONGO_URI, {})
+// MongoDB connect
+mongoose.connect(process.env.MONGO_URI)
     .then(async () => {
-        console.log("Product DB Coonected");
-        //init kafka producer
-        try {
-            await initProducer({ KAFKA_BROKER, KAFKA_CLIENT_ID });
-            console.log("Kafka producer connected");
+        console.log("Product Service DB Connected");
 
-        }
-        catch (err) {
-            console.error("Kafka init failed:", err.message);
-        }
+        // Kafka connect
+        await initKafka();
 
         app.listen(PORT, () => {
-            console.log(`Product service is runnnning on port ${PORT}`);
-
-        })
-        })
-        .catch(err=>{
-            console.error("DB connection error:", err.message);
-            process.exit(1);
-            
-        })
-
-    
-
+            console.log(`Product Service running on port ${PORT}`);
+        });
+    })
+    .catch((err) => console.log("DB Error:", err));
