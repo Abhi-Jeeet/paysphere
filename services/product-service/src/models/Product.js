@@ -10,8 +10,8 @@ const productSchema = new mongoose.Schema({
         type:Number,
         required: true,
     },
-    images: [string],
-    sku: string,
+    images: [String],
+    sku: String,
     stock: {
         type:Number,
         default:0,
