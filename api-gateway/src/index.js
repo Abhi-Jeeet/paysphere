@@ -17,9 +17,9 @@ const AUTH_SERVICE = process.env.AUTH_SERVICE_URL;
 function verifyToken(req, res, next){
     //public routes -> no auth
     if(
-        req.originalUrl.startsWith("/auth/login")||
-        req.originalUrl.startsWith("/auth/register")||
-        req.originalUrl.startsWith("/products")
+        req.path.startsWith("/auth/login")||
+        req.path.startsWith("/auth/register")||
+        (req.method === "GET" && req.path.startsWith("/products"))
 
     ){
         return next();
@@ -64,7 +64,35 @@ app.use("/auth", async(req,res)=>{
 
 //Product Service
 
+app.use("/products", async(req, res)=>{
+    try {
+        const url = process.env.PRODUCT_SERVICE_URL + req.url;// e.g. http://localhost:5002/api/products + / or /:id
 
+        // Add user context headers (gateway verified token earlier)
+        const forwardHeaders = {...req.headers};
+        if(req.user){
+            forwardHeaders["x-user-id"] = req.user.id;
+            forwardHeaders["x-role"] = req.user.role;
+        }
+        const response = await axios({
+            method:req.method,
+            url,
+            data:req.body,
+            headers: forwardHeaders,
+        });
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+        console.log("GATEWAY -> products error:", error.message);
+        if(error.response){
+            res.status(error.response.status).json(error.response.data);
+        }
+        else{
+            res.status(500).json({error:"Gateway Error", details: error.message});
+        }
+        
+    }
+})
 
 
 app.get("/", (req, res)=>{
