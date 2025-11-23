@@ -6,6 +6,10 @@ import UserRoute from "./components/UserRoute";
 import AdminRoute from "./components/AdminRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import Unauthorized from "./pages/Unauthorized";
+import ProductList from "./pages/products/ProductList";
+import ProductDetail from "./pages/products/ProductDetails";
+import AdminProducts from "./pages/admin/AminProducts";
+import AdminProductForm from "./pages/admin/AdminProductForm";
 
 function App() {
   return (
@@ -14,6 +18,8 @@ function App() {
         {/* public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+         <Route path="/products" element={<ProductList />} />
+          <Route path="/products/:id" element={<ProductDetail />} />
 
 
           {/* user routes */}
@@ -32,6 +38,11 @@ function App() {
             
           
         }/>
+        <Route path="/admin/products" element={<AdminRoute><AdminProducts/></AdminRoute>} />
+
+        <Route path="/admin/products/new" element={<AdminRoute><AdminProductForm/></AdminRoute>} />
+
+        <Route path="/admin/products/:id/edit" element={<AdminRoute><AdminProductForm/></AdminRoute>} />
 
         {/* Shared */}
         <Route path="/unauthorized" element={<Unauthorized/>} />
