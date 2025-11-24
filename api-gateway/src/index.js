@@ -70,6 +70,9 @@ app.use("/products", async(req, res)=>{
 
         // Add user context headers (gateway verified token earlier)
         const forwardHeaders = {...req.headers};
+        delete forwardHeaders["if-none-match"];
+        delete forwardHeaders["if-modified-since"];
+        delete forwardHeaders["cache-control"];
         if(req.user){
             forwardHeaders["x-user-id"] = req.user.id;
             forwardHeaders["x-role"] = req.user.role;
