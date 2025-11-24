@@ -10,6 +10,7 @@ import ProductList from "./pages/products/ProductList";
 import ProductDetail from "./pages/products/ProductDetails";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminProductForm from "./pages/admin/AdminProductForm";
+import Cart from "./pages/cart/Cart";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
             </UserRoute>
           
         }/>
+        <Route path="/cart" element={<UserRoute><Cart/></UserRoute>} />
 
           {/* admin routes */}
         <Route path="/admin/dashboard" element={

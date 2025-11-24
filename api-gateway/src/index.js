@@ -95,6 +95,43 @@ app.use("/products", async(req, res)=>{
         }
         
     }
+});
+
+//CART forwarder
+app.use("/cart", async(req,res)=>{
+    try {
+        const url = process.env.CART_SERVICE_URL + req.url; // e.g. http://localhost:5005/api/cart + /add or / or /item/:id
+        console.log("Forwarding to:", url);
+        const forwardHeaders = { ...req.headers };
+        delete forwardHeaders["if-none-match"];
+        delete forwardHeaders["if-modified-since"];
+        delete forwardHeaders["cache-control"];
+
+        // forward user context from verifyToken (gateway attaches req.user)
+        if (req.user) {
+            forwardHeaders["x-user-id"] = req.user.id;
+            forwardHeaders["x-role"] = req.user.role;
+        }
+
+         const response = await axios({
+            method: req.method,
+            url,
+            data: req.body,
+            headers: forwardHeaders
+        });
+         return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.log("🔥 FULL CART ERROR:");
+console.log("Message:", error.message);
+console.log("Name:", error.name);
+console.log("Code:", error.code);
+console.log("Stack:", error.stack);
+console.log("Response data:", error.response?.data);
+console.log("Response status:", error.response?.status);
+console.log("Config:", error.config);
+        if (error.response) return res.status(error.response.status).json(error.response.data);
+        return res.status(500).json({ error: "Gateway Error", details: error.message });
+    }
 })
 
 

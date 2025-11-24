@@ -1,7 +1,12 @@
 const Cart = require("../models/Cart");
 const axios = require("axios");
 
-const PRODUCT_SERVICE = process.env.PRODUCT_SERVICE_URL;
+// Normalize PRODUCT_SERVICE to avoid trailing slash issues.
+// If env var is missing or only whitespace, fall back to the default product-service URL.
+const _rawProductService = (process.env.PRODUCT_SERVICE_URL || "").trim();
+const PRODUCT_SERVICE = (_rawProductService || "http://localhost:5002/api/products").replace(/\/$/, "");
+
+console.log("CartService: using PRODUCT_SERVICE=", PRODUCT_SERVICE);
 
 //get or create cart
 async function getCartForUser(userId){
@@ -29,13 +34,27 @@ exports.addToCart = async(req, res)=>{
     if(!productId) return res.status(400).json({error: "ProductId required"});
 
     //Fetch product snapshot from product service
-
     let product;
+    const productUrl = `${PRODUCT_SERVICE}/${productId}`;
+    console.log(`CartService: fetching product snapshot from ${productUrl} for user ${userId}`);
     try {
-        const p = await axios.get(`${PRODUCT_SERVICE}/${productId}`);
+        const p = await axios.get(productUrl);
         product = p.data;
     } catch (error) {
-        return res.status(400).json(({error:"Product not found"}));
+        console.error("CartService: product fetch error", {
+            message: error.message,
+            status: error.response?.status,
+            data: error.response?.data,
+            config: error.config && { url: error.config.url, method: error.config.method }
+        });
+
+        // If product-service responded with a status (e.g. 404), forward that status and data.
+        if (error.response) {
+            return res.status(error.response.status).json(error.response.data || { error: "Product not found" });
+        }
+
+        // Network / other error
+        return res.status(502).json({ error: "Product service unavailable", details: error.message });
     }
 
     const cart = await getCartForUser(userId);
@@ -83,7 +102,7 @@ exports.updateItem = async(req,res)=>{
     }
 
     await cart.save();
-    res,json(cart);
+    res.json(cart);
 };
 
 //Delete /api/cart/item/:productId
@@ -91,7 +110,7 @@ exports.removeItem = async(req, res)=>{
     const userId = req.headers["x-user-id"];
     if(!userId) return res.status(401).json({error: "No user id"});
 
-    const productId = req.param.productId;
+    const productId = req.params.productId;
     const cart = await getCartForUser(userId);
     const before = cart.items.length;
     cart.items = cart.items.filter(i=>i.productId!== productId);
