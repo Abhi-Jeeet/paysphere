@@ -8,7 +8,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import Unauthorized from "./pages/Unauthorized";
 import ProductList from "./pages/products/ProductList";
 import ProductDetail from "./pages/products/ProductDetails";
-import AdminProducts from "./pages/admin/AminProducts";
+import AdminProducts from "./pages/admin/AdminProducts";
 import AdminProductForm from "./pages/admin/AdminProductForm";
 
 function App() {
