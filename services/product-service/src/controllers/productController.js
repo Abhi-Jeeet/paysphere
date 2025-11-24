@@ -18,7 +18,7 @@ exports.listProducts = async(req, res)=>{
 };
 
 //public: get single product
-exports.getProduct = async(rrq, res)=>{
+exports.getProduct = async(req, res)=>{
     const p = await Product.findById(req.params.id);
     if(!p) return res.status(400).json({error:"Product not found"});
     res.json(p);
@@ -41,8 +41,11 @@ exports.updateProduct = async(req, res)=>{
 }
 
 //admin delete product
-exports.deleteProduct = async(req, res)=>{
-    const p = await Product.findByIdAndDelete;
-    if(!p) return res.status(404).json({error:"Prodcuct not found"})
-    res.json({message: "Deleted"});
-}
+exports.deleteProduct = async (req, res) => {
+  console.log("Deleting product id:", req.params.id);
+
+  const p = await Product.findByIdAndDelete(req.params.id);
+  if (!p) return res.status(404).json({ error: "Product not found" });
+
+  res.json({ message: "Product deleted" });
+};
