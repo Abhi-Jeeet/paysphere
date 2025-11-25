@@ -1,26 +1,23 @@
 import { useEffect, useState } from "react";
 import { fetchProduct } from "../../services/productApi";
-import { addToCart } from "../../services/cartApi";
 import { useParams, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../../store/cartSlice";
 
 export default function ProductDetail(){
   const { id } = useParams();
   const [product, setProduct] = useState(null);
    const navigate = useNavigate();
+   const dispatch = useDispatch();
 
   useEffect(()=> {
     fetchProduct(id).then(res=> setProduct(res.data));
   }, [id]);
 
   const handleAddToCart = async () => {
-    try {
-      await addToCart({ productId: id, quantity: 1 });
-      alert("Added to cart");
-      navigate("/cart");
-    } catch (err) {
-      console.error("Add to cart error:", err);
-      alert(err.response?.data?.error || "Add to cart failed");
-    }
+    dispatch(addToCart(product));
+    alert("Added to cart");
+    navigate("/cart");
   };
 
   if(!product) return <p>Loading...</p>;

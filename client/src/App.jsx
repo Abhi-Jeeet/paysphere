@@ -10,7 +10,7 @@ import ProductList from "./pages/products/ProductList";
 import ProductDetail from "./pages/products/ProductDetails";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminProductForm from "./pages/admin/AdminProductForm";
-import Cart from "./pages/cart/Cart";
+import Cart from "./pages/cart/CartPage";
 
 function App() {
   return (
