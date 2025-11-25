@@ -11,6 +11,8 @@ import ProductDetail from "./pages/products/ProductDetails";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminProductForm from "./pages/admin/AdminProductForm";
 import Cart from "./pages/cart/CartPage";
+import OrderSuccess from "./pages/checkout/OrderSuccess";
+import CheckoutPage from "./pages/checkout/CheckoutPage";
 
 function App() {
   return (
@@ -31,6 +33,23 @@ function App() {
           
         }/>
         <Route path="/cart" element={<UserRoute><Cart/></UserRoute>} />
+        <Route
+            path="/checkout"
+            element={
+              <UserRoute>
+                <CheckoutPage />
+              </UserRoute>
+            }
+              />
+
+            <Route
+              path="/order-success"
+              element={
+                <UserRoute>
+                  <OrderSuccess />
+                </UserRoute>
+              }
+            />
 
           {/* admin routes */}
         <Route path="/admin/dashboard" element={
@@ -51,6 +70,7 @@ function App() {
 
         <Route path="*" element={<Login />} />
       </Routes>
+      
     </BrowserRouter>
   );
 }

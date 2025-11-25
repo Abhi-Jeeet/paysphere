@@ -97,6 +97,16 @@ app.use("/products", async(req, res)=>{
     }
 });
 
+// Helper to clean headers (remove caching/browser-specific headers)
+function cleanHeaders(headers) {
+    const cleaned = { ...headers };
+    delete cleaned["if-none-match"];
+    delete cleaned["if-modified-since"];
+    delete cleaned["cache-control"];
+    delete cleaned["host"];
+    return cleaned;
+}
+
 //CART forwarder
 app.use("/cart", async(req,res)=>{
     try {
@@ -133,6 +143,33 @@ console.log("Config:", error.config);
         return res.status(500).json({ error: "Gateway Error", details: error.message });
     }
 })
+
+// BOOKING FORWARDER
+app.use("/booking", async (req, res) => {
+  try {
+    const url = process.env.BOOKING_SERVICE_URL + req.url;
+    console.log("Forwarding to booking:", url);
+    const fwdHeaders = cleanHeaders(req.headers);
+    if (req.user) {
+      fwdHeaders["x-user-id"] = req.user.id;
+      fwdHeaders["x-role"] = req.user.role;
+    }
+    const response = await axios({
+      method: req.method,
+      url,
+      data: req.body,
+      headers: fwdHeaders,
+    });
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.log("BOOKING ERROR:", error.message);
+    if (error.response) {
+      console.log("Booking service responded:", error.response.status, error.response.data);
+      return res.status(error.response.status).json(error.response.data);
+    }
+    res.status(500).json({ error: "Gateway Error", details: error.message });
+  }
+});
 
 
 app.get("/", (req, res)=>{
