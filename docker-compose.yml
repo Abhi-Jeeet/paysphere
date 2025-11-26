@@ -1,0 +1,61 @@
+services:
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    env_file:
+      - ./api-gateway/.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - auth-service
+      - product-service
+      - booking-service
+    networks:
+      - paysphere-net
+
+  auth-service:
+    build: ./services/auth-service
+    container_name: auth-service
+    env_file:
+      - ./services/auth-service/.env
+    ports:
+      - "5001:5001"
+    networks:
+      - paysphere-net
+
+  product-service:
+    build: ./services/product-service
+    container_name: product-service
+    env_file:
+      - ./services/product-service/.env
+    ports:
+      - "5002:5002"
+    networks:
+      - paysphere-net
+
+  booking-service:
+    build: ./services/booking-service
+    container_name: booking-service
+    env_file:
+      - ./services/booking-service/.env
+    ports:
+      - "5003:5003"
+    depends_on:
+      - product-service
+    networks:
+      - paysphere-net
+
+  client:
+    build: ./client
+    container_name: paysphere-client
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api-gateway
+    networks:
+      - paysphere-net
+
+networks:
+  paysphere-net:
+    driver: bridge
+
